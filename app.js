@@ -3556,7 +3556,7 @@ function endGame() {
     const heading = document.createElement("h1")
     heading.innerHTML = "Results"
 
-    sum = Math.max(1000 * right - 500 * wrong - 250 * (5 - skips), 0)
+    sum = Math.max(100 * right - 50 * wrong - 25 * (5 - skips), 0)
     const score = document.createElement("p")
     score.id = "results"
     score.innerHTML = "Score: " + sum
