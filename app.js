@@ -9,6 +9,8 @@ let inputField, submitButton, currentWord, timeout, right = 0, wrong = 0, skips 
 
 let words = []
 
+let answers = []
+
 let defaultWords = [
     "quizzical",
     "highfalutin",
@@ -3474,7 +3476,8 @@ function checkInput() {
     if (input.value == "" || input.value.trim().length == 0) {
     }
     else if(input.value.trim() == "?") {
-        skips--
+        let ans = currentWord + ": " +  synonyms[0]
+        answers.push(ans)
         if(skips == 0) {
             endGame()
         }
@@ -3483,15 +3486,20 @@ function checkInput() {
             currentWord = words[Math.floor(Math.random() * words.length)]
             getSynonyms(currentWord)
         }
+        skips--
     }
     else {
         if(synonyms.includes(input.value.trim().toLowerCase())) {
+            let ans = currentWord + " " +  synonyms[0]
+            answers.push(ans)
             document.querySelector("#input").style.borderColor = "green"
             currentWord = words[Math.floor(Math.random() * words.length)]
             getSynonyms(currentWord)
             right++
         }
         else {
+            let ans = currentWord + " " +  synonyms[0]
+            answers.push(ans)
             document.querySelector("#input").style.borderColor = "red"
             wrong++
         }
@@ -3522,6 +3530,7 @@ async function getSynonyms(value) {
 }
 
 function endGame() {
+    console.log(answers)
     clearTimeout(timeout)
     gameScreen.innerHTML = ""
 
@@ -3540,7 +3549,7 @@ function endGame() {
     skipped.id = "results"
     skipped.innerHTML = "Skipped: " + (5-skips)
     
-    sum = 1000 * right - 500 * wrong - 250 * (5 - skips)
+    sum = Math.max(1000 * right - 500 * wrong - 250 * (5 - skips), 0)
     const score = document.createElement("p")
     score.id = "results"
     score.innerHTML = "Score: " + sum
