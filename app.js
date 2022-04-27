@@ -3540,7 +3540,7 @@ function endGame() {
     skipped.id = "results"
     skipped.innerHTML = "Skipped: " + (5-skips)
     
-    sum = 100 * right - 100 * wrong - 50 * (5 - skips)
+    sum = 1000 * right - 500 * wrong - 250 * (5 - skips)
     const score = document.createElement("p")
     score.id = "results"
     score.innerHTML = "Score: " + sum
