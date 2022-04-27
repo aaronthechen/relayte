@@ -1,11 +1,15 @@
 const homeScreen = document.querySelector("#home")
 const gameScreen = document.querySelector("#game")
 const endScreen = document.querySelector("#end")
+const settingsScreen = document.querySelector("#settings")
 const playButton = document.querySelector("#play")
+const customLink = document.querySelector("#custom")
 
 let inputField, submitButton, currentWord, timeout, right = 0, wrong = 0, skips = 5
 
-let words = [
+let words = []
+
+let defaultWords = [
     "quizzical",
     "highfalutin",
     "dynamic",
@@ -1290,7 +1294,6 @@ let words = [
     "action",
     "activity",
     "aftermath",
-    "afternoon",
     "afterthought",
     "apparel",
     "appliance",
@@ -1640,7 +1643,6 @@ let words = [
     "dock",
     "doctor",
     "dog",
-    "dogs",
     "doll",
     "dolls",
     "donkey",
@@ -1793,7 +1795,6 @@ let words = [
     "hope",
     "horn",
     "horse",
-    "horses",
     "hose",
     "hospital",
     "hot",
@@ -3006,7 +3007,6 @@ let words = [
     "project",
     "promise",
     "promote",
-    "proofread",
     "propose",
     "protect",
     "prove",
@@ -3395,8 +3395,14 @@ let words = [
 let synonyms = []
 
 playButton.addEventListener("click", () => {
-    timeout = setTimeout(endGame, 30000)
-    currentWord = words[Math.floor(Math.random() * 3389)]
+    timeout = setTimeout(endGame, 60000)
+    if(localStorage.getItem("custom") == null) {
+        words = defaultWords
+    }
+    else {
+        words = JSON.parse(localStorage.getItem("custom"))
+    }
+    currentWord = words[Math.floor(Math.random() * words.length)]
 
     homeScreen.innerHTML = ""
 
@@ -3408,6 +3414,7 @@ playButton.addEventListener("click", () => {
     const input = document.createElement("input")
     input.id = "input"
     input.placeholder = "Type..."
+    input.autocomplete = "off"
     input.setAttribute("pattern", "\\S.*\\S")
     input.addEventListener('keydown', (event) => {
         if (event.key == "Enter") {
@@ -3432,10 +3439,39 @@ playButton.addEventListener("click", () => {
     input.focus()
 })
 
+customLink.onclick = () => {
+    homeScreen.innerHTML = ""
+
+    const textarea = document.createElement("textarea")
+    textarea.placeholder = "Separate custom words with only a single space, leave empty to clear\nex. dog cat mouse"
+    if(localStorage.getItem("custom") !== null) {
+        textarea.value = JSON.parse(localStorage.getItem("custom")).join(" ")
+    }
+
+    const save = document.createElement("button")
+    save.innerHTML = "Save"
+    save.addEventListener("click", () => {
+        if(textarea.value == "") {
+            localStorage.removeItem("custom")
+        }
+        else {
+            words = textarea.value.split(" ")
+            localStorage.setItem("custom", JSON.stringify(words))
+        }
+    })
+
+    const back = document.createElement("a")
+    back.innerHTML = "Go Back"
+    back.href = "/"
+
+    settingsScreen.appendChild(textarea)
+    settingsScreen.appendChild(save)
+    settingsScreen.appendChild(back)
+}
+
 function checkInput() {
     const input = document.querySelector("#input")
     if (input.value == "" || input.value.trim().length == 0) {
-        console.log("error")
     }
     else if(input.value.trim() == "?") {
         skips--
@@ -3444,14 +3480,14 @@ function checkInput() {
         }
         else {
             document.querySelector("#input").style.borderColor = ""
-            currentWord = words[Math.floor(Math.random() * 3389)]
+            currentWord = words[Math.floor(Math.random() * words.length)]
             getSynonyms(currentWord)
         }
     }
     else {
         if(synonyms.includes(input.value.trim().toLowerCase())) {
             document.querySelector("#input").style.borderColor = "green"
-            currentWord = words[Math.floor(Math.random() * 3389)]
+            currentWord = words[Math.floor(Math.random() * words.length)]
             getSynonyms(currentWord)
             right++
         }
@@ -3464,31 +3500,28 @@ function checkInput() {
 }
 
 async function getSynonyms(value) {
-    url = "https://api.wordnik.com/v4/word.json/" + value + "/relatedWords?useCanonical=true&relationshipTypes=synonym&limitPerRelationshipType=1000&api_key=a2a73e7b926c924fad7001ca3111acd55af2ffabf50eb4ae5"
-
+    url = "https://api.datamuse.com/words?ml=" + value.trim() + "&max=100"
     const res = await fetch(url)
+    const responses = await res.json()
 
-    if (res.status !== 200) {
+    if (res.status !== 200 || responses.length == 0) {
+        console.log(value)
         synonyms = []
         document.querySelector("#word").innerHTML = "..."
-        currentWord = words[Math.floor(Math.random() * 3389)]
-        getSynonyms(currentWord)
+        currentWord = words[Math.floor(Math.random() * words.length)]
+        await getSynonyms(currentWord)
     }
     else {
-        const responses = await res.json()
-        document.querySelector("#word").innerHTML = value
         synonyms = []
+        document.querySelector("#word").innerHTML = value
         responses.forEach(response => {
-            response.words.forEach(syn => {
-                synonyms.push(syn)
-            })
+            synonyms.push(response.word)
         })
         console.log(synonyms)
     }
 }
 
 function endGame() {
-    console.log("end")
     clearTimeout(timeout)
     gameScreen.innerHTML = ""
 
