@@ -57,7 +57,9 @@ button {
 
 input {
   margin: 0.5rem;
-  width: 20rem;
+  width: 40vw;
+  max-width: 40rem;
+  min-width: 10rem;
   padding: 1rem;
   border-width: 2px;
   border-radius: 10px;
@@ -74,7 +76,9 @@ input {
 
 textarea {
   padding: 1rem;
-  width: 30rem;
+  width: 40vw;
+  max-width: 40rem;
+  min-width: 10rem;
   min-height: 5rem;
   max-height: 30rem;
   border-width: 2px;

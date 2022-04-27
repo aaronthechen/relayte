@@ -3449,6 +3449,9 @@ customLink.onclick = () => {
     const range = document.createElement("input")
     range.type = "number"
     range.placeholder = "Limit of synonyms generated, default 100, max 1000"
+    if(localStorage.getItem("limit") !== null) {
+        range.value = localStorage.getItem("limit")
+    }
 
     const textarea = document.createElement("textarea")
     textarea.placeholder = "Separate custom words with only a single space, leave empty to clear\nex. dog cat mouse"
@@ -3470,7 +3473,10 @@ customLink.onclick = () => {
             localStorage.removeItem("limit")
         }
         else {
-            localStorage.setItem("limit", Math.max(range.value, 1000))
+            if(range.value < 1) {
+                range.value = 100
+            }
+            localStorage.setItem("limit", Math.min(range.value, 1000))
         }
         window.location = "/"
     })
