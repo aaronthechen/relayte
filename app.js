@@ -3539,6 +3539,11 @@ function endGame() {
     const skipped = document.createElement("p")
     skipped.id = "results"
     skipped.innerHTML = "Skipped: " + (5-skips)
+    
+    sum = 100 * right - 100 * wrong - 50 * (5 - skips)
+    const score = document.createElement("p")
+    score.id = "results"
+    score.innerHTML = "Score: " + sum
 
     const back = document.createElement("a")
     back.innerHTML = "Go Back"
@@ -3548,5 +3553,6 @@ function endGame() {
     endScreen.appendChild(correct)
     endScreen.appendChild(incorrect)
     endScreen.appendChild(skipped)
+    endScreen.appendChild(score)
     endScreen.appendChild(back)
 }
