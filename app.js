@@ -5,11 +5,7 @@ const settingsScreen = document.querySelector("#settings")
 const playButton = document.querySelector("#play")
 const customLink = document.querySelector("#custom")
 
-let inputField, submitButton, currentWord, timeout, right = 0, wrong = 0, skips = 5
-
-let words = []
-
-let answers = []
+let inputField, submitButton, currentWord, timeout, right = 0, wrong = 0, skips = 5, limit = 100, answers = [], synonyms = [], words = []
 
 let defaultWords = [
     "quizzical",
@@ -3394,16 +3390,22 @@ let defaultWords = [
     "zoom"
 ]
 
-let synonyms = []
+if(localStorage.getItem("custom") == null) {
+    words = defaultWords
+}
+else {
+    words = JSON.parse(localStorage.getItem("custom"))
+}
+
+if(localStorage.getItem("limit") == null) {
+    limit = 100
+}
+else {
+    limit = localStorage.getItem("limit")
+}
 
 playButton.addEventListener("click", () => {
     timeout = setTimeout(endGame, 60000)
-    if(localStorage.getItem("custom") == null) {
-        words = defaultWords
-    }
-    else {
-        words = JSON.parse(localStorage.getItem("custom"))
-    }
     currentWord = words[Math.floor(Math.random() * words.length)]
 
     homeScreen.innerHTML = ""
@@ -3444,6 +3446,10 @@ playButton.addEventListener("click", () => {
 customLink.onclick = () => {
     homeScreen.innerHTML = ""
 
+    const range = document.createElement("input")
+    range.type = "number"
+    range.placeholder = "Limit of synonyms generated, default 100, max 1000"
+
     const textarea = document.createElement("textarea")
     textarea.placeholder = "Separate custom words with only a single space, leave empty to clear\nex. dog cat mouse"
     if(localStorage.getItem("custom") !== null) {
@@ -3460,12 +3466,19 @@ customLink.onclick = () => {
             words = textarea.value.split(" ")
             localStorage.setItem("custom", JSON.stringify(words))
         }
+        if(range.value == "") {
+            localStorage.removeItem("limit")
+        }
+        else {
+            localStorage.setItem("limit", Math.max(range.value, 1000))
+        }
+        window.location = "/"
     })
 
     const back = document.createElement("a")
     back.innerHTML = "Go Back"
     back.href = "/"
-
+    settingsScreen.appendChild(range)
     settingsScreen.appendChild(textarea)
     settingsScreen.appendChild(save)
     settingsScreen.appendChild(back)
@@ -3508,7 +3521,7 @@ function checkInput() {
 }
 
 async function getSynonyms(value) {
-    url = "https://api.datamuse.com/words?ml=" + value.trim() + "&max=100"
+    url = "https://api.datamuse.com/words?ml=" + value.trim() + "&max=" + limit
     const res = await fetch(url)
     const responses = await res.json()
 
@@ -3537,6 +3550,11 @@ function endGame() {
     const heading = document.createElement("h1")
     heading.innerHTML = "Results"
 
+    sum = Math.max(1000 * right - 500 * wrong - 250 * (5 - skips), 0)
+    const score = document.createElement("p")
+    score.id = "results"
+    score.innerHTML = "Score: " + sum
+
     const correct = document.createElement("p")
     correct.id = "results"
     correct.innerHTML = "Correct: " + right
@@ -3548,20 +3566,15 @@ function endGame() {
     const skipped = document.createElement("p")
     skipped.id = "results"
     skipped.innerHTML = "Skipped: " + (5-skips)
-    
-    sum = Math.max(1000 * right - 500 * wrong - 250 * (5 - skips), 0)
-    const score = document.createElement("p")
-    score.id = "results"
-    score.innerHTML = "Score: " + sum
 
     const back = document.createElement("a")
     back.innerHTML = "Go Back"
     back.href = "/"
 
     endScreen.appendChild(heading)
+    endScreen.appendChild(score)
     endScreen.appendChild(correct)
     endScreen.appendChild(incorrect)
     endScreen.appendChild(skipped)
-    endScreen.appendChild(score)
     endScreen.appendChild(back)
 }
