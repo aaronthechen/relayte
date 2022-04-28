@@ -6,13 +6,13 @@
 }
 
 body {
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: aliceblue;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: aliceblue;
 }
 
 div {
@@ -22,38 +22,38 @@ div {
   gap: 10px;
 }
 
-#results {
+.p {
   font-size: 2rem;
 }
 
 button {
-    background-color: lightseagreen; /* Green */
-    border: none;
-    color: white;
-    font-size: 2rem;
-    font-weight: bold;
-    padding: 1rem 4rem;
-    border-radius: 10px;
-    transition: 0.3s;
-  }
+  background-color: lightseagreen; /* Green */
+  border: none;
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+  padding: 1rem 4rem;
+  border-radius: 10px;
+  transition: 0.3s;
+}
 
-  button:hover {background-color:teal;}
+button:hover {background-color:teal;}
 
-  a:link {
-    color: grey;
-    background-color: transparent;
-    text-decoration: none;
-  }
+a {
+  color: grey;
+  background-color: transparent;
+  text-decoration: none;
+}
   
-  a:visited {
-    color: grey;
-    background-color: transparent;
-    text-decoration: none;
-  }
+a:visited {
+  color: grey;
+  background-color: transparent;
+  text-decoration: none;
+}
 
-  a:hover {
-    cursor: pointer;
-  }
+a:hover {
+  cursor: pointer;
+}
 
 input {
   margin: 0.5rem;
@@ -75,6 +75,7 @@ input {
 }
 
 textarea {
+  margin: 0.5rem;
   padding: 1rem;
   width: 40vw;
   max-width: 40rem;

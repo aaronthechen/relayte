@@ -3,9 +3,9 @@ const gameScreen = document.querySelector("#game")
 const endScreen = document.querySelector("#end")
 const settingsScreen = document.querySelector("#settings")
 const playButton = document.querySelector("#play")
-const customLink = document.querySelector("#custom")
+const settingsLink = document.querySelector("#settings-link")
 
-let inputField, submitButton, currentWord, timeout, right = 0, wrong = 0, skips = 5, limit = 100, answers = [], synonyms = [], words = []
+let inputField, submitButton, currentWord, time, timeout, interval, right = 0, wrong = 0, skips = 5, limit = 100, answers = [], synonyms = [], words = []
 
 // default word list
 let defaultWords = [
@@ -3390,6 +3390,7 @@ let defaultWords = [
     "zip",
     "zoom"
 ]
+
 // loading custom word bank
 if (localStorage.getItem("custom") == null) {
     words = defaultWords
@@ -3397,6 +3398,7 @@ if (localStorage.getItem("custom") == null) {
 else {
     words = JSON.parse(localStorage.getItem("custom"))
 }
+
 // loading custom limit for synonym results
 if (localStorage.getItem("limit") == null) {
     limit = 100
@@ -3405,13 +3407,127 @@ else {
     limit = localStorage.getItem("limit")
 }
 
-// play event
+// loading custom time
+if(localStorage.getItem("time") == null) {
+    time = 60
+}
+else {
+    time = localStorage.getItem("time")
+}
+
+// gets related words from Datamuse
+async function getSynonyms(value) {
+    url = "https://api.datamuse.com/words?ml=" + value.trim() + "&max=" + limit
+    const res = await fetch(url)
+    const responses = await res.json()
+
+    synonyms = []
+
+    if (res.status !== 200 || responses.length == 0) { // no synonyms
+        console.log("no synonyms:" + value)
+        document.querySelector("#word").innerHTML = "..."
+
+        currentWord = words[Math.floor(Math.random() * words.length)]
+        await getSynonyms(currentWord)
+    }
+    else {
+        document.querySelector("#word").innerHTML = value
+
+        responses.forEach(response => {
+            synonyms.push(response.word)
+        })
+        console.log(synonyms)
+
+        answers.push(currentWord + ": " + synonyms[0]) // adds to answer key
+    }
+}
+
+// checks if user input is correct
+function checkInput() {
+    const input = document.querySelector("#input")
+
+    if (input.value == "" || input.value.trim().length == 0) {
+        return
+    }
+    else if (input.value.trim() == "?") {
+        if (skips == 0) {
+            endGame()
+        }
+        else {
+            document.querySelector("#input").style.borderColor = ""
+            currentWord = words[Math.floor(Math.random() * words.length)]
+            getSynonyms(currentWord)
+        }
+        skips--
+    }
+    else {
+        if (synonyms.includes(input.value.trim().toLowerCase())) {
+            document.querySelector("#input").style.borderColor = "green"
+            currentWord = words[Math.floor(Math.random() * words.length)]
+            getSynonyms(currentWord)
+            right++
+        }
+        else {
+            document.querySelector("#input").style.borderColor = "red"
+            wrong++
+        }
+    }
+    input.value = ""
+}
+
+// starts the timer
+function startTimer(duration, display) {
+    var start = Date.now(),
+        diff,
+        minutes,
+        seconds;
+    function timer() {
+        // get the number of seconds that have elapsed since 
+        // startTimer() was called
+        diff = duration - (((Date.now() - start) / 1000) | 0);
+
+        if(diff == duration) {
+            clearInterval(interval)
+            return
+        }
+
+        // does the same job as parseInt truncates the float
+        minutes = (diff / 60) | 0;
+        seconds = (diff % 60) | 0;
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        display.innerHTML = minutes + ":" + seconds; 
+
+        if (diff <= 0) {
+            // add one second so that the count down starts at the full duration
+            // example 05:00 not 04:59
+            start = Date.now() + 1000;
+        }
+    };
+    // we don't want to wait a full second before the timer starts
+    timer();
+    interval = setInterval(timer, 1000);
+}
+
+// starts the game
 playButton.addEventListener("click", () => {
-    timeout = setTimeout(endGame, 60000)
+    timeout = setTimeout(endGame, time * 1000)
 
     currentWord = words[Math.floor(Math.random() * words.length)]
 
     homeScreen.innerHTML = ""
+
+    minutes = (time / 60) | 0;
+    seconds = (time % 60) | 0;
+    minutes = minutes < 10 ? "0" + minutes : minutes;
+    seconds = seconds < 10 ? "0" + seconds : seconds;
+
+    display = document.querySelector("#time")
+    display.innerHTML = minutes + ":" + seconds; 
+
+    startTimer(time, display)
 
     const heading = document.createElement("h1")
     heading.id = "word"
@@ -3420,7 +3536,7 @@ playButton.addEventListener("click", () => {
 
     const input = document.createElement("input")
     input.id = "input"
-    input.placeholder = "Type..."
+    input.placeholder = "Type ? to skip"
     input.autocomplete = "off"
     input.setAttribute("pattern", "\\S.*\\S")
     input.addEventListener('keydown', (event) => {
@@ -3446,19 +3562,64 @@ playButton.addEventListener("click", () => {
     input.focus()
 })
 
+// ends the game
+function endGame() {
+    console.log(answers)
+    clearTimeout(timeout)
+    gameScreen.innerHTML = ""
+
+    const heading = document.createElement("h1")
+    heading.innerHTML = "Results"
+
+    sum = Math.max(100 * right - 50 * wrong - 25 * (5 - skips), 0)
+    const score = document.createElement("p")
+    score.className = "p"
+    score.innerHTML = "Score: " + sum
+
+    const correct = document.createElement("p")
+    correct.className = "p"
+    correct.innerHTML = "Correct: " + right
+
+    const incorrect = document.createElement("p")
+    incorrect.className = "p"
+    incorrect.innerHTML = "Incorrect: " + wrong
+
+    const skipped = document.createElement("p")
+    skipped.className = "p"
+    skipped.innerHTML = "Skipped: " + (5 - skips)
+
+    const back = document.createElement("a")
+    back.innerHTML = "Go Back"
+    back.href = "/"
+
+    endScreen.appendChild(heading)
+    endScreen.appendChild(score)
+    endScreen.appendChild(correct)
+    endScreen.appendChild(incorrect)
+    endScreen.appendChild(skipped)
+    endScreen.appendChild(back)
+}
+
 // settings
-customLink.onclick = () => {
+settingsLink.onclick = () => {
     homeScreen.innerHTML = ""
+
+    const time = document.createElement("input")
+    time.type = "number"
+    time.placeholder = "Time limit in seconds, max 1800"
+    if (localStorage.getItem("time") !== null) {
+        time.value = localStorage.getItem("time")
+    }
 
     const range = document.createElement("input")
     range.type = "number"
-    range.placeholder = "Limit of synonyms generated, default 100, max 1000"
+    range.placeholder = "Number of synonyms generated, max 1000"
     if (localStorage.getItem("limit") !== null) {
         range.value = localStorage.getItem("limit")
     }
 
     const textarea = document.createElement("textarea")
-    textarea.placeholder = "Separate custom words with only a single space, leave empty to clear\nex. dog cat mouse"
+    textarea.placeholder = "Separate custom words with only a single space, leave empty to clear \nex. dog cat mouse"
     if (localStorage.getItem("custom") !== null) {
         textarea.value = JSON.parse(localStorage.getItem("custom")).join(" ")
     }
@@ -3482,110 +3643,25 @@ customLink.onclick = () => {
             }
             localStorage.setItem("limit", Math.min(range.value, 1000))
         }
+        if (time.value == "") {
+            localStorage.removeItem("time")
+        }
+        else {
+            if (time.value < 1) {
+                time.value = 100
+            }
+            localStorage.setItem("time", Math.min(time.value, 1800))
+        }
         window.location = "/"
     })
 
     const back = document.createElement("a")
     back.innerHTML = "Go Back"
     back.href = "/"
-    
+
+    settingsScreen.appendChild(time)
     settingsScreen.appendChild(range)
     settingsScreen.appendChild(textarea)
     settingsScreen.appendChild(save)
     settingsScreen.appendChild(back)
-}
-
-function checkInput() {
-    const input = document.querySelector("#input")
-    if (input.value == "" || input.value.trim().length == 0) {
-    }
-    else if (input.value.trim() == "?") {
-        let ans = currentWord + ": " + synonyms[0]
-        answers.push(ans)
-        if (skips == 0) {
-            endGame()
-        }
-        else {
-            document.querySelector("#input").style.borderColor = ""
-            currentWord = words[Math.floor(Math.random() * words.length)]
-            getSynonyms(currentWord)
-        }
-        skips--
-    }
-    else {
-        if (synonyms.includes(input.value.trim().toLowerCase())) {
-            let ans = currentWord + " " + synonyms[0]
-            answers.push(ans)
-            document.querySelector("#input").style.borderColor = "green"
-            currentWord = words[Math.floor(Math.random() * words.length)]
-            getSynonyms(currentWord)
-            right++
-        }
-        else {
-            let ans = currentWord + " " + synonyms[0]
-            answers.push(ans)
-            document.querySelector("#input").style.borderColor = "red"
-            wrong++
-        }
-    }
-    input.value = ""
-}
-
-async function getSynonyms(value) {
-    url = "https://api.datamuse.com/words?ml=" + value.trim() + "&max=" + limit
-    const res = await fetch(url)
-    const responses = await res.json()
-
-    if (res.status !== 200 || responses.length == 0) {
-        console.log(value)
-        synonyms = []
-        document.querySelector("#word").innerHTML = "..."
-        currentWord = words[Math.floor(Math.random() * words.length)]
-        await getSynonyms(currentWord)
-    }
-    else {
-        synonyms = []
-        document.querySelector("#word").innerHTML = value
-        responses.forEach(response => {
-            synonyms.push(response.word)
-        })
-        console.log(synonyms)
-    }
-}
-
-function endGame() {
-    console.log(answers)
-    clearTimeout(timeout)
-    gameScreen.innerHTML = ""
-
-    const heading = document.createElement("h1")
-    heading.innerHTML = "Results"
-
-    sum = Math.max(100 * right - 50 * wrong - 25 * (5 - skips), 0)
-    const score = document.createElement("p")
-    score.id = "results"
-    score.innerHTML = "Score: " + sum
-
-    const correct = document.createElement("p")
-    correct.id = "results"
-    correct.innerHTML = "Correct: " + right
-
-    const incorrect = document.createElement("p")
-    incorrect.id = "results"
-    incorrect.innerHTML = "Incorrect: " + wrong
-
-    const skipped = document.createElement("p")
-    skipped.id = "results"
-    skipped.innerHTML = "Skipped: " + (5 - skips)
-
-    const back = document.createElement("a")
-    back.innerHTML = "Go Back"
-    back.href = "/"
-
-    endScreen.appendChild(heading)
-    endScreen.appendChild(score)
-    endScreen.appendChild(correct)
-    endScreen.appendChild(incorrect)
-    endScreen.appendChild(skipped)
-    endScreen.appendChild(back)
 }
