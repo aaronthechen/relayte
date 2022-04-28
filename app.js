@@ -7,20 +7,6 @@ const customLink = document.querySelector("#custom")
 
 let inputField, submitButton, currentWord, timeout, right = 0, wrong = 0, skips = 5, limit = 100, answers = [], synonyms = [], words = []
 
-// loading custom word bank
-if (localStorage.getItem("custom") == null) {
-    words = defaultWords
-}
-else {
-    words = JSON.parse(localStorage.getItem("custom"))
-}
-// loading custom limit for synonym results
-if (localStorage.getItem("limit") == null) {
-    limit = 100
-}
-else {
-    limit = localStorage.getItem("limit")
-}
 // default word list
 let defaultWords = [
     "quizzical",
@@ -3404,6 +3390,20 @@ let defaultWords = [
     "zip",
     "zoom"
 ]
+// loading custom word bank
+if (localStorage.getItem("custom") == null) {
+    words = defaultWords
+}
+else {
+    words = JSON.parse(localStorage.getItem("custom"))
+}
+// loading custom limit for synonym results
+if (localStorage.getItem("limit") == null) {
+    limit = 100
+}
+else {
+    limit = localStorage.getItem("limit")
+}
 
 // play event
 playButton.addEventListener("click", () => {
