@@ -7,6 +7,21 @@ const customLink = document.querySelector("#custom")
 
 let inputField, submitButton, currentWord, timeout, right = 0, wrong = 0, skips = 5, limit = 100, answers = [], synonyms = [], words = []
 
+// loading custom word bank
+if (localStorage.getItem("custom") == null) {
+    words = defaultWords
+}
+else {
+    words = JSON.parse(localStorage.getItem("custom"))
+}
+// loading custom limit for synonym results
+if (localStorage.getItem("limit") == null) {
+    limit = 100
+}
+else {
+    limit = localStorage.getItem("limit")
+}
+// default word list
 let defaultWords = [
     "quizzical",
     "highfalutin",
@@ -3390,22 +3405,10 @@ let defaultWords = [
     "zoom"
 ]
 
-if(localStorage.getItem("custom") == null) {
-    words = defaultWords
-}
-else {
-    words = JSON.parse(localStorage.getItem("custom"))
-}
-
-if(localStorage.getItem("limit") == null) {
-    limit = 100
-}
-else {
-    limit = localStorage.getItem("limit")
-}
-
+// play event
 playButton.addEventListener("click", () => {
     timeout = setTimeout(endGame, 60000)
+
     currentWord = words[Math.floor(Math.random() * words.length)]
 
     homeScreen.innerHTML = ""
@@ -3413,7 +3416,7 @@ playButton.addEventListener("click", () => {
     const heading = document.createElement("h1")
     heading.id = "word"
     heading.innerHTML = currentWord
-    getSynonyms(currentWord)    
+    getSynonyms(currentWord)
 
     const input = document.createElement("input")
     input.id = "input"
@@ -3443,37 +3446,38 @@ playButton.addEventListener("click", () => {
     input.focus()
 })
 
+// settings
 customLink.onclick = () => {
     homeScreen.innerHTML = ""
 
     const range = document.createElement("input")
     range.type = "number"
     range.placeholder = "Limit of synonyms generated, default 100, max 1000"
-    if(localStorage.getItem("limit") !== null) {
+    if (localStorage.getItem("limit") !== null) {
         range.value = localStorage.getItem("limit")
     }
 
     const textarea = document.createElement("textarea")
     textarea.placeholder = "Separate custom words with only a single space, leave empty to clear\nex. dog cat mouse"
-    if(localStorage.getItem("custom") !== null) {
+    if (localStorage.getItem("custom") !== null) {
         textarea.value = JSON.parse(localStorage.getItem("custom")).join(" ")
     }
 
     const save = document.createElement("button")
     save.innerHTML = "Save"
     save.addEventListener("click", () => {
-        if(textarea.value == "") {
+        if (textarea.value == "") {
             localStorage.removeItem("custom")
         }
         else {
             words = textarea.value.split(" ")
             localStorage.setItem("custom", JSON.stringify(words))
         }
-        if(range.value == "") {
+        if (range.value == "") {
             localStorage.removeItem("limit")
         }
         else {
-            if(range.value < 1) {
+            if (range.value < 1) {
                 range.value = 100
             }
             localStorage.setItem("limit", Math.min(range.value, 1000))
@@ -3484,6 +3488,7 @@ customLink.onclick = () => {
     const back = document.createElement("a")
     back.innerHTML = "Go Back"
     back.href = "/"
+    
     settingsScreen.appendChild(range)
     settingsScreen.appendChild(textarea)
     settingsScreen.appendChild(save)
@@ -3494,10 +3499,10 @@ function checkInput() {
     const input = document.querySelector("#input")
     if (input.value == "" || input.value.trim().length == 0) {
     }
-    else if(input.value.trim() == "?") {
-        let ans = currentWord + ": " +  synonyms[0]
+    else if (input.value.trim() == "?") {
+        let ans = currentWord + ": " + synonyms[0]
         answers.push(ans)
-        if(skips == 0) {
+        if (skips == 0) {
             endGame()
         }
         else {
@@ -3508,8 +3513,8 @@ function checkInput() {
         skips--
     }
     else {
-        if(synonyms.includes(input.value.trim().toLowerCase())) {
-            let ans = currentWord + " " +  synonyms[0]
+        if (synonyms.includes(input.value.trim().toLowerCase())) {
+            let ans = currentWord + " " + synonyms[0]
             answers.push(ans)
             document.querySelector("#input").style.borderColor = "green"
             currentWord = words[Math.floor(Math.random() * words.length)]
@@ -3517,7 +3522,7 @@ function checkInput() {
             right++
         }
         else {
-            let ans = currentWord + " " +  synonyms[0]
+            let ans = currentWord + " " + synonyms[0]
             answers.push(ans)
             document.querySelector("#input").style.borderColor = "red"
             wrong++
@@ -3571,7 +3576,7 @@ function endGame() {
 
     const skipped = document.createElement("p")
     skipped.id = "results"
-    skipped.innerHTML = "Skipped: " + (5-skips)
+    skipped.innerHTML = "Skipped: " + (5 - skips)
 
     const back = document.createElement("a")
     back.innerHTML = "Go Back"
