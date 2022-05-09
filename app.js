@@ -546,7 +546,6 @@ let defaultWords = [
     "sable",
     "horrible",
     "silly",
-    "ad hoc",
     "numerous",
     "berserk",
     "wiry",
@@ -3408,14 +3407,18 @@ else {
 }
 
 // loading custom time
-if(localStorage.getItem("time") == null) {
+if (localStorage.getItem("time") == null) {
     time = 60
 }
 else {
     time = localStorage.getItem("time")
 }
 
-// gets related words from Datamuse
+// click listeners
+playButton.onclick = startGame
+settingsLink.onclick = accessSettings
+
+// gets related words from Datamuse API
 async function getSynonyms(value) {
     url = "https://api.datamuse.com/words?ml=" + value.trim() + "&max=" + limit
     const res = await fetch(url)
@@ -3427,7 +3430,12 @@ async function getSynonyms(value) {
         console.log("no synonyms:" + value)
         document.querySelector("#word").innerHTML = "..."
 
-        currentWord = words[Math.floor(Math.random() * words.length)]
+        let temp = words[Math.floor(Math.random() * words.length)]
+        while (temp == currentWord) {
+            temp = words[Math.floor(Math.random() * words.length)]
+        }
+        currentWord = temp
+
         await getSynonyms(currentWord)
     }
     else {
@@ -3455,7 +3463,13 @@ function checkInput() {
         }
         else {
             document.querySelector("#input").style.borderColor = ""
-            currentWord = words[Math.floor(Math.random() * words.length)]
+
+            let temp = words[Math.floor(Math.random() * words.length)]
+            while (temp == currentWord) {
+                temp = words[Math.floor(Math.random() * words.length)]
+            }
+            currentWord = temp
+
             getSynonyms(currentWord)
         }
         skips--
@@ -3463,7 +3477,13 @@ function checkInput() {
     else {
         if (synonyms.includes(input.value.trim().toLowerCase())) {
             document.querySelector("#input").style.borderColor = "green"
-            currentWord = words[Math.floor(Math.random() * words.length)]
+
+            let temp = words[Math.floor(Math.random() * words.length)]
+            while (temp == currentWord) {
+                temp = words[Math.floor(Math.random() * words.length)]
+            }
+            currentWord = temp
+
             getSynonyms(currentWord)
             right++
         }
@@ -3486,7 +3506,7 @@ function startTimer(duration, display) {
         // startTimer() was called
         diff = duration - (((Date.now() - start) / 1000) | 0);
 
-        if(diff == duration) {
+        if (diff == duration) {
             clearInterval(interval)
             return
         }
@@ -3498,7 +3518,7 @@ function startTimer(duration, display) {
         minutes = minutes < 10 ? "0" + minutes : minutes;
         seconds = seconds < 10 ? "0" + seconds : seconds;
 
-        display.innerHTML = minutes + ":" + seconds; 
+        display.innerHTML = minutes + ":" + seconds;
 
         if (diff <= 0) {
             // add one second so that the count down starts at the full duration
@@ -3512,7 +3532,7 @@ function startTimer(duration, display) {
 }
 
 // starts the game
-playButton.addEventListener("click", () => {
+function startGame() {
     timeout = setTimeout(endGame, time * 1000)
 
     currentWord = words[Math.floor(Math.random() * words.length)]
@@ -3523,10 +3543,8 @@ playButton.addEventListener("click", () => {
     seconds = (time % 60) | 0;
     minutes = minutes < 10 ? "0" + minutes : minutes;
     seconds = seconds < 10 ? "0" + seconds : seconds;
-
     display = document.querySelector("#time")
-    display.innerHTML = minutes + ":" + seconds; 
-
+    display.innerHTML = minutes + ":" + seconds;
     startTimer(time, display)
 
     const heading = document.createElement("h1")
@@ -3560,7 +3578,7 @@ playButton.addEventListener("click", () => {
     gameScreen.appendChild(submit)
     gameScreen.appendChild(back)
     input.focus()
-})
+}
 
 // ends the game
 function endGame() {
@@ -3569,12 +3587,11 @@ function endGame() {
     gameScreen.innerHTML = ""
 
     const heading = document.createElement("h1")
-    heading.innerHTML = "Results"
+    heading.innerHTML = "Score"
 
     sum = Math.max(100 * right - 50 * wrong - 25 * (5 - skips), 0)
-    const score = document.createElement("p")
-    score.className = "p"
-    score.innerHTML = "Score: " + sum
+    const score = document.createElement("h1")
+    score.innerHTML = sum
 
     const correct = document.createElement("p")
     correct.className = "p"
@@ -3600,8 +3617,8 @@ function endGame() {
     endScreen.appendChild(back)
 }
 
-// settings
-settingsLink.onclick = () => {
+//settings
+function accessSettings() {
     homeScreen.innerHTML = ""
 
     const time = document.createElement("input")

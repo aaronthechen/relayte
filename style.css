@@ -22,10 +22,6 @@ div {
   gap: 10px;
 }
 
-.p {
-  font-size: 2rem;
-}
-
 button {
   background-color: lightseagreen; /* Green */
   border: none;
@@ -66,14 +62,6 @@ input {
   border-style: solid;
 }
 
-#input {
-  padding: 1rem;
-  border-width: 2px;
-  border-radius: 10px;
-  border-style: solid;
-  font-size: 2rem;
-}
-
 textarea {
   margin: 0.5rem;
   padding: 1rem;
@@ -90,6 +78,22 @@ textarea {
 
 textarea:focus, input:focus{
   outline: none;
+}
+
+.p {
+  font-size: 2rem;
+}
+
+#input {
+  padding: 1rem;
+  border-width: 2px;
+  border-radius: 10px;
+  border-style: solid;
+  font-size: 2rem;
+}
+
+#results {
+  flex-direction: row;
 }
 
 @media screen and (min-width: 601px) {
