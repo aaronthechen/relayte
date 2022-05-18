@@ -3611,6 +3611,9 @@ function endGame() {
     const score = document.createElement("h1")
     score.innerHTML = sum
 
+    const horizontal = document.createElement("div")
+    horizontal.className = "horizontal"
+
     const correct = document.createElement("p")
     correct.className = "p"
     correct.innerHTML = "Correct: " + right
@@ -3623,15 +3626,17 @@ function endGame() {
     skipped.className = "p"
     skipped.innerHTML = "Skipped: " + (5 - skips)
 
+    horizontal.appendChild(correct)
+    horizontal.appendChild(incorrect)
+    horizontal.appendChild(skipped)
+
     const back = document.createElement("a")
     back.innerHTML = "Go Back"
     back.href = "/"
 
     endScreen.appendChild(heading)
     endScreen.appendChild(score)
-    endScreen.appendChild(correct)
-    endScreen.appendChild(incorrect)
-    endScreen.appendChild(skipped)
+    endScreen.appendChild(horizontal)
     endScreen.appendChild(back)
 }
 
