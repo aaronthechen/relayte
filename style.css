@@ -6,13 +6,7 @@
 }
 
 body {
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: aliceblue;
+  background-color: var(--main-bg-color);
 }
 
 div {
@@ -23,9 +17,9 @@ div {
 }
 
 button {
-  background-color: lightseagreen; /* Green */
+  background-color: var(--btn-bg-color); /* Green */
   border: none;
-  color: white;
+  color: var(--btn-font-color);
   font-size: 2rem;
   font-weight: bold;
   padding: 1rem 4rem;
@@ -33,16 +27,16 @@ button {
   transition: 0.3s;
 }
 
-button:hover {background-color:teal;}
+button:hover {background-color: var(--btn-hover-color);}
 
 a {
-  color: grey;
+  color: var(--a-color);
   background-color: transparent;
   text-decoration: none;
 }
   
 a:visited {
-  color: grey;
+  color: var(--a-color);
   background-color: transparent;
   text-decoration: none;
 }
@@ -51,7 +45,11 @@ a:hover {
   cursor: pointer;
 }
 
-input {
+h1, label, .p {
+  color: var(--font-color)
+}
+
+input[type='number'] {
   margin: 0.5rem;
   width: 40vw;
   max-width: 40rem;
@@ -80,8 +78,21 @@ textarea:focus, input:focus{
   outline: none;
 }
 
+.content {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 .p {
   font-size: 2rem;
+}
+
+.horizontal {
+  flex-direction: row ;
 }
 
 #input {

@@ -5,7 +5,7 @@ const settingsScreen = document.querySelector("#settings")
 const playButton = document.querySelector("#play")
 const settingsLink = document.querySelector("#settings-link")
 
-let inputField, submitButton, currentWord, time, timeout, interval, right = 0, wrong = 0, skips = 5, limit = 100, answers = [], synonyms = [], words = []
+let inputField, submitButton, currentWord, dark, time, timeout, interval, right = 0, wrong = 0, skips = 5, limit = 100, answers = [], synonyms = [], words = []
 
 // default word list
 let defaultWords = [
@@ -3414,6 +3414,24 @@ else {
     time = localStorage.getItem("time")
 }
 
+// loading color mode 
+if(localStorage.getItem("dark") == null) {
+    document.documentElement.style.setProperty('--main-bg-color', "aliceblue")
+    document.documentElement.style.setProperty('--btn-bg-color', "lightseagreen")
+    document.documentElement.style.setProperty('--btn-font-color', "white")
+    document.documentElement.style.setProperty('--btn-hover-color', "teal")
+    document.documentElement.style.setProperty('--a-color', "grey")
+    document.documentElement.style.setProperty('--font-color', "black")
+}
+else {
+    document.documentElement.style.setProperty('--main-bg-color', "#23272A")
+    document.documentElement.style.setProperty('--btn-bg-color', "#424549")
+    document.documentElement.style.setProperty('--btn-font-color', "white")
+    document.documentElement.style.setProperty('--btn-hover-color', "#36393e")
+    document.documentElement.style.setProperty('--a-color', "grey")
+    document.documentElement.style.setProperty('--font-color', "white")
+}
+
 // click listeners
 playButton.onclick = startGame
 settingsLink.onclick = accessSettings
@@ -3641,6 +3659,44 @@ function accessSettings() {
         textarea.value = JSON.parse(localStorage.getItem("custom")).join(" ")
     }
 
+    const horizontal = document.createElement("div")
+    horizontal.className = "horizontal"
+
+    const darkmode = document.createElement("input")
+    darkmode.type = "checkbox"
+    darkmode.id = "dark-mode"
+    if(localStorage.getItem("dark") !== null) {
+        console.log("here")
+        darkmode.checked = true;
+    }
+    darkmode.addEventListener("click", () => {
+        if(darkmode.checked) {
+            localStorage.setItem("dark", true)
+            document.documentElement.style.setProperty('--main-bg-color', "#23272A")
+            document.documentElement.style.setProperty('--btn-bg-color', "#424549")
+            document.documentElement.style.setProperty('--btn-font-color', "white")
+            document.documentElement.style.setProperty('--btn-hover-color', "#36393e")
+            document.documentElement.style.setProperty('--a-color', "grey")
+            document.documentElement.style.setProperty('--font-color', "white")
+        }
+        else {
+            localStorage.removeItem("dark")
+            document.documentElement.style.setProperty('--main-bg-color', "aliceblue")
+            document.documentElement.style.setProperty('--btn-bg-color', "lightseagreen")
+            document.documentElement.style.setProperty('--btn-font-color', "white")
+            document.documentElement.style.setProperty('--btn-hover-color', "teal")
+            document.documentElement.style.setProperty('--a-color', "grey")
+            document.documentElement.style.setProperty('--font-color', "black")
+        }
+    })
+
+    const darkmodelabel = document.createElement("label")
+    darkmodelabel.htmlFor = "dark-mode"
+    darkmodelabel.innerHTML = "Dark Mode"
+
+    horizontal.appendChild(darkmode)
+    horizontal.appendChild(darkmodelabel)
+
     const save = document.createElement("button")
     save.innerHTML = "Save"
     save.addEventListener("click", () => {
@@ -3679,6 +3735,7 @@ function accessSettings() {
     settingsScreen.appendChild(time)
     settingsScreen.appendChild(range)
     settingsScreen.appendChild(textarea)
+    settingsScreen.appendChild(horizontal)
     settingsScreen.appendChild(save)
     settingsScreen.appendChild(back)
 }
