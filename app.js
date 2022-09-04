@@ -3611,32 +3611,12 @@ function endGame() {
     const score = document.createElement("h1")
     score.innerHTML = sum
 
-    const horizontal = document.createElement("div")
-    horizontal.className = "horizontal"
-
-    const correct = document.createElement("p")
-    correct.className = "p"
-    correct.innerHTML = "Correct: " + right
-
-    const incorrect = document.createElement("p")
-    incorrect.className = "p"
-    incorrect.innerHTML = "Incorrect: " + wrong
-
-    const skipped = document.createElement("p")
-    skipped.className = "p"
-    skipped.innerHTML = "Skipped: " + (5 - skips)
-
-    horizontal.appendChild(correct)
-    horizontal.appendChild(incorrect)
-    horizontal.appendChild(skipped)
-
     const back = document.createElement("a")
     back.innerHTML = "Go Back"
     back.href = "/"
 
     endScreen.appendChild(heading)
     endScreen.appendChild(score)
-    endScreen.appendChild(horizontal)
     endScreen.appendChild(back)
 }
 
